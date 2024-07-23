@@ -1,5 +1,4 @@
 using System;
-using Unity.Mathematics;
 
 /// <summary>
 /// Represents a hexagonal grid of data.
@@ -60,15 +59,13 @@ public class Hexagon<T> {
     /// <param name="c"></param>
     /// <returns></returns>
     public float ToX(HexCoordinates c) => HIToX(ToHICoordinateValues(c));
-
-    public int RowMin(int row, HexAxis rowAxis, HexAxis indexAxis) {
-        if (rowAxis == HexAxis.I || indexAxis == HexAxis.I) {
-            return row < _layers ? 0 : row - _layers + 1;
-        }
-
-        return row < _layers ? _layers - row - 1 : 0;
-    }
     
+    /// <summary>
+    /// Given some coordinates, where one is considered the "row", what is the lowest value the other axis can have while keeping the row value constant?
+    /// </summary>
+    /// <param name="c">Hex coordinates</param>
+    /// <param name="aIsRow">If true, the first axis is considered the row, otherwise the other one is.</param>
+    /// <returns>The lowest value the non-row value can have on that row.</returns>
     public int RowMin(HexCoordinates c, bool aIsRow=true) {
         int row = aIsRow ? c.A : c.B;
         if (c.AAxis == HexAxis.I || c.BAxis == HexAxis.I) {
@@ -78,6 +75,12 @@ public class Hexagon<T> {
         return row < _layers ? _layers - row - 1 : 0;
     }
 
+    /// <summary>
+    /// Given some coordinates, where one is considered the "row", what is the highest value the other axis can have while keeping the row value constant?
+    /// </summary>
+    /// <param name="c">Hex coordinates</param>
+    /// <param name="aIsRow">If true, the first axis is considered the row, otherwise the other one is.</param>
+    /// <returns>The highest value the non-row value can have on that row.</returns>
     public int RowMax(HexCoordinates c, bool aIsRow=true) {
         int row = aIsRow ? c.A : c.B;
         if (c.AAxis == HexAxis.I || c.BAxis == HexAxis.I) {
@@ -87,12 +90,22 @@ public class Hexagon<T> {
         return row >= _layers ? Diameter + _layers - row - 2 : Diameter - 1;
     }
 
+    /// <summary>
+    /// Given coordinates with two axis, get the value of the third axis.
+    /// </summary>
+    /// <param name="c">Hex coordinates.</param>
+    /// <returns>Value of third axis.</returns>
     public int GetThirdCoordinate(HexCoordinates c){
         if (c.AAxis == HexAxis.I) return c.A - c.B + _layers - 1;
         if (c.BAxis == HexAxis.I) return c.B - c.A + _layers - 1;
         return c.A + c.B - _layers + 1;
     }
     
+    /// <summary>
+    /// Transforms a coordinate in the one-dimensional K-axis to two dimensions (HI). 
+    /// </summary>
+    /// <param name="k">K coordinate.</param>
+    /// <returns>HI coordinates</returns>
     public HexCoordinates KToHI(int k) {
         int start = 0;
         int flip = 1;
@@ -112,14 +125,29 @@ public class Hexagon<T> {
         return c;
     }
     
+    /// <summary>
+    /// Coordinates to Y in world space.
+    /// </summary>
+    /// <param name="c">Hex coordinate values in HI.</param>
+    /// <returns>Y</returns>
     private float HIToY(HexCoordinateValues c) {
         return -c.A * 0.8660254f;
     }
 
+    /// <summary>
+    /// Coordinates to X in world space.
+    /// </summary>
+    /// <param name="c">Hex coordinate values in HI.</param>
+    /// <returns>X</returns>
     private float HIToX(HexCoordinateValues c) {
         return c.B + 0.5f * (_layers - c.A - 1);
     }
 
+    /// <summary>
+    /// HI coordinates to K-axis.
+    /// </summary>
+    /// <param name="c">Hex coordinates.</param>
+    /// <returns>K coordinate.</returns>
     private int HIToK(HexCoordinateValues c) {
         int start = 0;
         int flip = 1;
@@ -132,6 +160,11 @@ public class Hexagon<T> {
         return start + flip * ((c.A + _layers - 1) * (c.A + _layers) / 2 - _missingCorner + c.B);
     }
 
+    /// <summary>
+    /// Converts coordinates to HI axis.
+    /// </summary>
+    /// <param name="c">The coordinates in original form.</param>
+    /// <returns>The HI-version of the coordinate values.</returns>
     private HexCoordinateValues ToHICoordinateValues(HexCoordinates c) {
         if (c.AAxis == HexAxis.J) {
             c.A = GetThirdCoordinate(c);
@@ -152,6 +185,7 @@ public class Hexagon<T> {
 
 /// <summary>
 /// Two-dimensional coordinates for use with Hexagon.
+/// The axis of A and B are determined by AAxis and BAxis.
 /// </summary>
 public struct HexCoordinates
 {
@@ -187,6 +221,9 @@ public enum HexAxis {
     J
 }
 
+/// <summary>
+/// Coordinates on unspecified axis.
+/// </summary>
 public struct HexCoordinateValues {
     public int A, B;
 
