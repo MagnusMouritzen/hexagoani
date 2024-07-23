@@ -143,7 +143,7 @@ public class GameManager : MonoBehaviour {
     /// <returns>Whether the piece actually moved, i.e. if the start and end are different.</returns>
     private bool MovePieceLogic(HexCoordinates start, HexCoordinates end, Piece piece)
     {
-        if (HexCoordinates.IsEqualValue(start, end)) return false;
+        if (start == end) return false;
         _hexagon[start] = null;
         _hexagon[end] = piece;
         _pieceInstructor.AddPieceToMove(piece, gridManager.GetTilePosition(end));

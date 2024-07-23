@@ -1,4 +1,5 @@
 using System;
+using Unity.Mathematics;
 
 /// <summary>
 /// Represents a hexagonal grid of data.
@@ -44,21 +45,21 @@ public class Hexagon<T> {
     /// </summary>
     /// <param name="c">The two-dimensional coordinates on two of the three axis.</param>
     /// <returns>The K coordinate.</returns>
-    public int ToK(HexCoordinates c) => HIToK(ToHICoordinates(c));
+    public int ToK(HexCoordinates c) => HIToK(ToHICoordinateValues(c));
 
     /// <summary>
     /// Tile coordinates to world space Y.
     /// </summary>
     /// <param name="c"></param>
     /// <returns></returns>
-    public float ToY(HexCoordinates c) => HIToY(ToHICoordinates(c));
+    public float ToY(HexCoordinates c) => HIToY(ToHICoordinateValues(c));
     
     /// <summary>
     /// Tile coordinates to world space X.
     /// </summary>
     /// <param name="c"></param>
     /// <returns></returns>
-    public float ToX(HexCoordinates c) => HIToX(ToHICoordinates(c));
+    public float ToX(HexCoordinates c) => HIToX(ToHICoordinateValues(c));
 
     public int RowMin(int row, HexAxis rowAxis, HexAxis indexAxis) {
         if (rowAxis == HexAxis.I || indexAxis == HexAxis.I) {
@@ -105,24 +106,21 @@ public class Hexagon<T> {
         // A mathematical approach is likely slower than an iterative.
         float n = _layers;
         c.A = (int)(0.5f - n + Math.Sqrt(4 * n * n + 8 * k - 4 * n + 1) / 2);
-        c.B = k - HIToK(c);
+        c.B = k - HIToK(c.Values);
         c.A = start + flip * c.A;
         c.B = start + flip * c.B;
         return c;
     }
     
-    private float HIToY(HexCoordinates c) {
-        EnsureHI(c);
+    private float HIToY(HexCoordinateValues c) {
         return -c.A * 0.8660254f;
     }
 
-    private float HIToX(HexCoordinates c) {
-        EnsureHI(c);
+    private float HIToX(HexCoordinateValues c) {
         return c.B + 0.5f * (_layers - c.A - 1);
     }
 
-    private int HIToK(HexCoordinates c) {
-        EnsureHI(c);
+    private int HIToK(HexCoordinateValues c) {
         int start = 0;
         int flip = 1;
         if (c.A >= _layers) {
@@ -134,7 +132,7 @@ public class Hexagon<T> {
         return start + flip * ((c.A + _layers - 1) * (c.A + _layers) / 2 - _missingCorner + c.B);
     }
 
-    private HexCoordinates ToHICoordinates(HexCoordinates c) {
+    private HexCoordinateValues ToHICoordinateValues(HexCoordinates c) {
         if (c.AAxis == HexAxis.J) {
             c.A = GetThirdCoordinate(c);
             c.AAxis -= c.BAxis + 1;
@@ -148,18 +146,35 @@ public class Hexagon<T> {
             c.AAxis = HexAxis.H;
             c.BAxis = HexAxis.I;
         }
-        return c;
+        return c.Values;
     }
+}
 
-    /// <summary>
-    /// Ensures that Hex coordinates are I and J.
-    /// </summary>
-    /// <param name="c">Hex coordinates to check.</param>
-    /// <exception cref="ArgumentException"></exception>
-    private static void EnsureHI(HexCoordinates c) {
-        if (c.AAxis != HexAxis.H || c.BAxis != HexAxis.I) {
-            throw new ArgumentException("HexCoordinates must be H, I.");
-        }
+/// <summary>
+/// Two-dimensional coordinates for use with Hexagon.
+/// </summary>
+public struct HexCoordinates
+{
+    public HexCoordinateValues Values;
+
+    public int A
+    {
+        get => Values.A;
+        set => Values.A = value;
+    }
+    public int B
+    {
+        get => Values.B;
+        set => Values.B = value;
+    }
+    public HexAxis AAxis, BAxis;
+
+    public static bool operator ==(HexCoordinates one, HexCoordinates two) => one.Values == two.Values && one.AAxis == two.AAxis && one.BAxis == two.BAxis;
+    
+    public static bool operator !=(HexCoordinates one, HexCoordinates two) => !(one == two);
+
+    public override string ToString() {
+        return $"({AAxis}: {A}, {BAxis}: {B})";
     }
 }
 
@@ -172,31 +187,10 @@ public enum HexAxis {
     J
 }
 
-/// <summary>
-/// Two-dimensional coordinates for use with Hexagon.
-/// </summary>
-public struct HexCoordinates {
+public struct HexCoordinateValues {
     public int A, B;
-    public HexAxis AAxis, BAxis;
 
-    /// <summary>
-    /// Check if two HexCoordinates are completely identical.
-    /// </summary>
-    /// <param name="a"></param>
-    /// <param name="b"></param>
-    /// <returns></returns>
-    public static bool IsFullyEqual(HexCoordinates a, HexCoordinates b) => a.A == b.A && a.B == b.B && a.AAxis == b.BAxis && a.BAxis == b.BAxis;
+    public static bool operator ==(HexCoordinateValues one, HexCoordinateValues two) => one.A == two.A && one.B == two.B;
 
-    /// <summary>
-    /// Check if two HexCoordinates have identical A and B.
-    /// </summary>
-    /// <param name="a"></param>
-    /// <param name="b"></param>
-    /// <returns></returns>
-    public static bool IsEqualValue(HexCoordinates a, HexCoordinates b) => a.A == b.A && a.B == b.B;
-
-    public override string ToString()
-    {
-        return $"({AAxis}: {A}, {BAxis}: {B})";
-    }
+    public static bool operator !=(HexCoordinateValues one, HexCoordinateValues two) => !(one == two);
 }
