@@ -63,12 +63,12 @@ public class GameManager : MonoBehaviour {
     {
         return movement switch
         {
-            Movement.UpRight => PerformMoveLogic(HexAxis.J, HexAxis.H, -1),
-            Movement.Right => PerformMoveLogic(HexAxis.I, HexAxis.J, -1),
-            Movement.DownRight => PerformMoveLogic(HexAxis.H, HexAxis.J, -1),
-            Movement.DownLeft => PerformMoveLogic(HexAxis.J, HexAxis.H, 1),
-            Movement.Left => PerformMoveLogic(HexAxis.I, HexAxis.J, 1),
-            Movement.UpLeft => PerformMoveLogic(HexAxis.H, HexAxis.J, 1),
+            Movement.UpRight => PerformMoveLogic(HexAxis.I, HexAxis.J, -1),
+            Movement.Right => PerformMoveLogic(HexAxis.H, HexAxis.I, -1),
+            Movement.DownRight => PerformMoveLogic(HexAxis.J, HexAxis.I, -1),
+            Movement.DownLeft => PerformMoveLogic(HexAxis.I, HexAxis.J, 1),
+            Movement.Left => PerformMoveLogic(HexAxis.H, HexAxis.I, 1),
+            Movement.UpLeft => PerformMoveLogic(HexAxis.J, HexAxis.I, 1),
             _ => false
         };
     }

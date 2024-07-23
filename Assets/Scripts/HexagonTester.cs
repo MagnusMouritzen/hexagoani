@@ -20,9 +20,9 @@ public class HexagonTester : MonoBehaviour{
             ReadCoordinates(true);
         }
         //ConvertCoordinates();
-        if (!KToIJ()) {
+        if (!KToHI()) {
             Debug.Log("Failed KToIJ");
-            KToIJ(true);
+            KToHI(true);
         }
     }
 
@@ -44,7 +44,7 @@ public class HexagonTester : MonoBehaviour{
 
     private bool ReadCoordinates(bool v = false) {
         int k = 0;
-        HexCoordinates c = new HexCoordinates() { A = 0, B = 0, AAxis = HexAxis.I, BAxis = HexAxis.J };
+        HexCoordinates c = new() { A = 0, B = 0, AAxis = HexAxis.H, BAxis = HexAxis.I };
         for (c.A = 0; c.A < _hexagon.Diameter; c.A++) {
             for (c.B = _hexagon.RowMin(c); c.B <= _hexagon.RowMax(c); c.B++) {
                 if (_hexagon[c] != k++) {
@@ -63,10 +63,10 @@ public class HexagonTester : MonoBehaviour{
     }
 
     private void ConvertCoordinates() {
-        HexAxis[] aS = { HexAxis.I, HexAxis.J, HexAxis.J, HexAxis.H, HexAxis.H };
-        HexAxis[] bS = { HexAxis.H, HexAxis.H, HexAxis.I, HexAxis.I, HexAxis.J };
+        HexAxis[] aS = { HexAxis.H, HexAxis.I, HexAxis.I, HexAxis.J, HexAxis.J };
+        HexAxis[] bS = { HexAxis.J, HexAxis.J, HexAxis.H, HexAxis.H, HexAxis.I };
         for (int i = 0; i < 5; i++) {
-            HexCoordinates c = new HexCoordinates() {AAxis = aS[i], BAxis = bS[i] };
+            HexCoordinates c = new() {AAxis = aS[i], BAxis = bS[i] };
             Debug.Log("");
             Debug.Log($"Now testing aAxis {c.AAxis} and bAxis {c.BAxis}");
             for (c.A = 0; c.A < _hexagon.Diameter; c.A++) {
@@ -77,11 +77,11 @@ public class HexagonTester : MonoBehaviour{
         }
     }
 
-    private bool KToIJ(bool v = false) {
+    private bool KToHI(bool v = false) {
         for (int k = 0; k < _hexagon.Size; k++) {
-            if (k != _hexagon[_hexagon.KToIJ(k)]) {
+            if (k != _hexagon[_hexagon.KToHI(k)]) {
                 if (v) {
-                    Debug.Log($"For k = {k}, got ({_hexagon.KToIJ(k).A}, {_hexagon.KToIJ(k).B})");
+                    Debug.Log($"For k = {k}, got ({_hexagon.KToHI(k).A}, {_hexagon.KToHI(k).B})");
                 } else {
                     return false;                    
                 }

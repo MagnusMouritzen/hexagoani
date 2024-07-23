@@ -5,9 +5,9 @@ using System;
 /// Each tile can be represented in multiple ways. The K-axis is single dimensional and simply iterates the tiles.
 /// The iteration starts at the top row at the left, goes towards the right until it starts over at the left of the next row.
 /// Alternatively, two of the following three axis can be used to identify a tile. Each axis counts the "rows" in a direction.
-/// I - | Up to down.
-/// J - \ Top left to bottom right.
-/// H - / Bottom left to top right.
+/// H - | Up to down.
+/// I - \ Top left to bottom right.
+/// J - / Bottom left to top right.
 /// </summary>
 public class Hexagon<T> {
     private readonly T[] _data;  // One data point for each tile.
@@ -44,24 +44,24 @@ public class Hexagon<T> {
     /// </summary>
     /// <param name="c">The two-dimensional coordinates on two of the three axis.</param>
     /// <returns>The K coordinate.</returns>
-    public int ToK(HexCoordinates c) => IJToK(ToIJCoordinates(c));
+    public int ToK(HexCoordinates c) => HIToK(ToHICoordinates(c));
 
     /// <summary>
     /// Tile coordinates to world space Y.
     /// </summary>
     /// <param name="c"></param>
     /// <returns></returns>
-    public float ToY(HexCoordinates c) => IJToY(ToIJCoordinates(c));
+    public float ToY(HexCoordinates c) => HIToY(ToHICoordinates(c));
     
     /// <summary>
     /// Tile coordinates to world space X.
     /// </summary>
     /// <param name="c"></param>
     /// <returns></returns>
-    public float ToX(HexCoordinates c) => IJToX(ToIJCoordinates(c));
+    public float ToX(HexCoordinates c) => HIToX(ToHICoordinates(c));
 
     public int RowMin(int row, HexAxis rowAxis, HexAxis indexAxis) {
-        if (rowAxis == HexAxis.J || indexAxis == HexAxis.J) {
+        if (rowAxis == HexAxis.I || indexAxis == HexAxis.I) {
             return row < _layers ? 0 : row - _layers + 1;
         }
 
@@ -70,7 +70,7 @@ public class Hexagon<T> {
     
     public int RowMin(HexCoordinates c, bool aIsRow=true) {
         int row = aIsRow ? c.A : c.B;
-        if (c.AAxis == HexAxis.J || c.BAxis == HexAxis.J) {
+        if (c.AAxis == HexAxis.I || c.BAxis == HexAxis.I) {
             return row < _layers ? 0 : row - _layers + 1;
         }
 
@@ -79,7 +79,7 @@ public class Hexagon<T> {
 
     public int RowMax(HexCoordinates c, bool aIsRow=true) {
         int row = aIsRow ? c.A : c.B;
-        if (c.AAxis == HexAxis.J || c.BAxis == HexAxis.J) {
+        if (c.AAxis == HexAxis.I || c.BAxis == HexAxis.I) {
             return row >= _layers ? Diameter - 1 : row + _layers - 1;
         }
 
@@ -87,12 +87,12 @@ public class Hexagon<T> {
     }
 
     public int GetThirdCoordinate(HexCoordinates c){
-        if (c.AAxis == HexAxis.J) return c.A - c.B + _layers - 1;
-        if (c.BAxis == HexAxis.J) return c.B - c.A + _layers - 1;
+        if (c.AAxis == HexAxis.I) return c.A - c.B + _layers - 1;
+        if (c.BAxis == HexAxis.I) return c.B - c.A + _layers - 1;
         return c.A + c.B - _layers + 1;
     }
     
-    public HexCoordinates KToIJ(int k) {
+    public HexCoordinates KToHI(int k) {
         int start = 0;
         int flip = 1;
         if (k > Size / 2) {
@@ -100,29 +100,29 @@ public class Hexagon<T> {
             flip = -1;
             k = Size - k - 1;
         }
-        HexCoordinates c = new() { B = 0, AAxis = HexAxis.I, BAxis = HexAxis.J };
+        HexCoordinates c = new() { B = 0, AAxis = HexAxis.H, BAxis = HexAxis.I };
         // TODO: Burn this to ashes. Blow it to atoms. Put it in a rocket and launch it into space. Throw it into an active volcano.
         // A mathematical approach is likely slower than an iterative.
         float n = _layers;
         c.A = (int)(0.5f - n + Math.Sqrt(4 * n * n + 8 * k - 4 * n + 1) / 2);
-        c.B = k - IJToK(c);
+        c.B = k - HIToK(c);
         c.A = start + flip * c.A;
         c.B = start + flip * c.B;
         return c;
     }
     
-    private float IJToY(HexCoordinates c) {
-        EnsureIJ(c);
+    private float HIToY(HexCoordinates c) {
+        EnsureHI(c);
         return -c.A * 0.8660254f;
     }
 
-    private float IJToX(HexCoordinates c) {
-        EnsureIJ(c);
+    private float HIToX(HexCoordinates c) {
+        EnsureHI(c);
         return c.B + 0.5f * (_layers - c.A - 1);
     }
 
-    private int IJToK(HexCoordinates c) {
-        EnsureIJ(c);
+    private int HIToK(HexCoordinates c) {
+        EnsureHI(c);
         int start = 0;
         int flip = 1;
         if (c.A >= _layers) {
@@ -134,19 +134,19 @@ public class Hexagon<T> {
         return start + flip * ((c.A + _layers - 1) * (c.A + _layers) / 2 - _missingCorner + c.B);
     }
 
-    private HexCoordinates ToIJCoordinates(HexCoordinates c) {
-        if (c.AAxis == HexAxis.H) {
+    private HexCoordinates ToHICoordinates(HexCoordinates c) {
+        if (c.AAxis == HexAxis.J) {
             c.A = GetThirdCoordinate(c);
             c.AAxis -= c.BAxis + 1;
-        } else if (c.BAxis == HexAxis.H) {
+        } else if (c.BAxis == HexAxis.J) {
             c.B = GetThirdCoordinate(c);
             c.BAxis -= c.AAxis + 1;
         }
 
         if (c.AAxis > c.BAxis) {
             (c.A, c.B) = (c.B, c.A);
-            c.AAxis = HexAxis.I;
-            c.BAxis = HexAxis.J;
+            c.AAxis = HexAxis.H;
+            c.BAxis = HexAxis.I;
         }
         return c;
     }
@@ -156,9 +156,9 @@ public class Hexagon<T> {
     /// </summary>
     /// <param name="c">Hex coordinates to check.</param>
     /// <exception cref="ArgumentException"></exception>
-    private static void EnsureIJ(HexCoordinates c) {
-        if (c.AAxis != HexAxis.I || c.BAxis != HexAxis.J) {
-            throw new ArgumentException("HexCoordinates must be I,J.");
+    private static void EnsureHI(HexCoordinates c) {
+        if (c.AAxis != HexAxis.H || c.BAxis != HexAxis.I) {
+            throw new ArgumentException("HexCoordinates must be H, I.");
         }
     }
 }
@@ -167,9 +167,9 @@ public class Hexagon<T> {
 /// The two-dimensional axis for use with Hexagon.
 /// </summary>
 public enum HexAxis {
+    H,
     I,
-    J,
-    H
+    J
 }
 
 /// <summary>

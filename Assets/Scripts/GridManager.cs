@@ -10,7 +10,7 @@ public class GridManager : MonoBehaviour
     public void GenerateHexagon(int layers)
     {
         _hexagon = new Hexagon<Transform>(layers);
-        HexCoordinates c = new HexCoordinates() { A = layers - 1, B = _hexagon.Diameter - 1, AAxis = HexAxis.I, BAxis = HexAxis.J };
+        HexCoordinates c = new() { A = layers - 1, B = _hexagon.Diameter - 1, AAxis = HexAxis.H, BAxis = HexAxis.I };
         float xOffset = -_hexagon.ToX(c) / 2;
         c.A = _hexagon.Diameter - 1;
         float yOffset = -_hexagon.ToY(c) / 2;
