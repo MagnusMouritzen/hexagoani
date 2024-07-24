@@ -4,15 +4,21 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class Piece : MonoBehaviour {
+    [Header("Properties")] 
+    [SerializeField] private Vector2 squeeze = Vector2.one;
+    
+    [Header("Setup")]
     [SerializeField] private TextMeshPro text;
     [SerializeField] private Settings settings;
     [SerializeField] private SpriteRenderer circle;
     [SerializeField] private SpriteRenderer outline;
+    [SerializeField] private Squeezer squeezer;
     
     private Vector3 _destination;
     private Vector3 _start;
     private bool _isMoving;
     private float _timer;
+    private float _relativeDist;
 
     public int Stage { get; private set; } = -1;
 
@@ -22,19 +28,41 @@ public class Piece : MonoBehaviour {
 
     private void Update() {
         if (!_isMoving) return;
+        UpdateTimer();
+        Move();
+        Squeeze();
+    }
+
+    private void UpdateTimer() {
         _timer += Time.deltaTime * settings.speed;
         if (_timer >= 1f) {
             _timer = 1f;
             _isMoving = false;
         }
-        transform.position = Vector3.Lerp(_start, _destination, _timer);
     }
 
-    public void MoveTo(Vector3 pos) {
+    private void Move() {
+        float t = -(Mathf.Cos(Mathf.PI * _timer) - 1) / 2;
+        transform.position = Vector3.Lerp(_start, _destination, t);
+    }
+
+    private void Squeeze() {
+        float t = Mathf.Sin(Mathf.PI * _timer);  // Derivative of Move's t (almost). Goes from 0 to 1 to 0.
+        squeezer.Squeeze(t * _relativeDist * squeeze);
+    }
+
+    /// <summary>
+    /// Gives the piece a target to move to.
+    /// </summary>
+    /// <param name="pos">Destination.</param>
+    /// <param name="relativeDist">How far the movement is, relative to the longest possible distance. 0-1.</param>
+    public void MoveTo(Vector3 pos, float relativeDist) {
         _isMoving = true;
         _destination = pos;
         _start = transform.position;
         _timer = 0f;
+        _relativeDist = relativeDist;
+        squeezer.SetDirection(pos - transform.position);
     }
 
     public void IncreaseStage()

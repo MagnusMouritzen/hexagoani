@@ -35,8 +35,8 @@ public class PieceInstructor {
         return 0f;
     }
     
-    public void AddPieceToMove(Piece piece, Vector3 destination) {
-        piece.MoveTo(destination);
+    public void AddPieceToMove(Piece piece, Vector3 destination, float relativeDist) {
+        piece.MoveTo(destination, relativeDist);
     }
 
     public void AddPieceToIncrease(Piece piece) {

@@ -1,6 +1,8 @@
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Random = UnityEngine.Random;
 
 public class GameManager : MonoBehaviour {
     [SerializeField] private int size = 1;
@@ -13,8 +15,6 @@ public class GameManager : MonoBehaviour {
     private PieceInstructor _pieceInstructor;
     private bool _inputStage;
     private int _pieces;
-    private bool _lost;
-    private static bool _hasPlayedMusic = false;
 
     private void Awake() {
         gridManager.GenerateHexagon(size);
@@ -24,10 +24,6 @@ public class GameManager : MonoBehaviour {
     }
 
     private void Start() {
-        if (!_hasPlayedMusic) {
-            GetComponent<AudioSource>().Play();
-            _hasPlayedMusic = true;
-        }
         GeneratePiece();
         _inputStage = true;
     }
@@ -48,17 +44,20 @@ public class GameManager : MonoBehaviour {
     /// <returns></returns>
     private IEnumerator ExecuteTurn(Movement movement) {
         _inputStage = false;
-        if (CalculateMove(movement)) {
+        if (CalculateMove(movement)) {  // True if the move resulted in a change.
             yield return new WaitForSeconds(_pieceInstructor.ExecuteMove());
             yield return new WaitForSeconds(_pieceInstructor.ExecuteIncrease());
             yield return new WaitForSeconds(_pieceInstructor.ExecuteRemove());
             yield return new WaitForSeconds(GeneratePiece());
         }
-        if (!_lost) {
-            _inputStage = true;
-        }
+        _inputStage = true;
     }
 
+    /// <summary>
+    /// Performs the full logical movement.
+    /// </summary>
+    /// <param name="movement">The direction to move all pieces in.</param>
+    /// <returns>If the move did anything.</returns>
     private bool CalculateMove(Movement movement)
     {
         return movement switch
@@ -73,49 +72,59 @@ public class GameManager : MonoBehaviour {
         };
     }
 
+    /// <summary>
+    /// Performs the movement for all pieces and updates the hexagon appropriately. Also records all the changes in the PieceInstructor.
+    /// </summary>
+    /// <param name="rowAxis">Orthogonal to the movement. So for each value along this axis, there is a row. The pieces move in a direction along their respective rows.</param>
+    /// <param name="columnAxis">One of the other axis.</param>
+    /// <param name="direction">The direction along the column axis from end to start of movement. So opposite of movement.</param>
+    /// <returns>If the move actually did anything.</returns>
     private bool PerformMoveLogic(HexAxis rowAxis, HexAxis columnAxis, int direction) {
         bool changeHappened = false;
-        HexCoordinates c = new() { AAxis = rowAxis, BAxis = columnAxis };
-        for (c.A = 0; c.A < _hexagon.Diameter; c.A++) {
+        // Go through every tile in the hexagon.
+        HexCoordinates c = new() { AAxis = rowAxis, BAxis = columnAxis };  // The current tile.
+        for (c.A = 0; c.A < _hexagon.Diameter; c.A++) {  // Go through all rows.
             int start = direction == 1 ? _hexagon.RowMin(c) : _hexagon.RowMax(c);
             int end = direction == 1 ? _hexagon.RowMax(c) + 1 : _hexagon.RowMin(c) - 1;
-            HexCoordinates lastSeen = c;
+            HexCoordinates lastSeen = c;  // The last piece that was seen on this row (in its final position after movement).
             lastSeen.B = -1;
             HexCoordinates otherMatching = lastSeen;
-            for (c.B = start; c.B != end; c.B += direction) {
+            for (c.B = start; c.B != end; c.B += direction) {  // Go through all tiles in row, starting at the end of the movement.
                 Piece cur = _hexagon[c];
-                if (cur == null) {
+                if (cur == null) {  // Nothing is done for empty tiles.
                     continue;
                 }
-                if (lastSeen.B == -1) {
+                if (lastSeen.B == -1) {  // If no piece has been seen yet, this piece should move to the edge.
                     lastSeen.B = start;
                     if (MovePieceLogic(c, lastSeen, cur)) changeHappened = true;
                 }
-                else if (cur.Stage == _hexagon[lastSeen].Stage) {
-                    if (otherMatching.B != -1) {
+                else if (cur.Stage == _hexagon[lastSeen].Stage) {  // If a piece has been seen before, and they are the same number.
+                    if (otherMatching.B != -1) {  // We now have three identical pieces, so they should merge.
+                        changeHappened = true;
                         Piece temp = _hexagon[otherMatching];
                         RemovePiece(temp);
                         RemovePiece(_hexagon[lastSeen]);
                         IncreasePiece(cur);
-                        if (MovePieceLogic(otherMatching, lastSeen, temp)) changeHappened = true;
-                        if (MovePieceLogic(c, lastSeen, cur)) changeHappened = true;
+                        MovePieceLogic(otherMatching, lastSeen, temp);
+                        MovePieceLogic(c, lastSeen, cur);
                         otherMatching.B = -1;
                     }
-                    else {
+                    else {  // If it's only those two matching, remember this one and keep lastSeen as is (to reduce operations and simplify).
                         otherMatching.B = c.B;
                     }
                 }
-                else {
-                    if (otherMatching.B != -1) {
+                else {  // If a piece has been seen before, but they are of different numbers.
+                    if (otherMatching.B != -1) {  // If the two that came before matched, move the second of the two since it no longer has chance to merge.
                         lastSeen.B += direction;
                         if (MovePieceLogic(otherMatching, lastSeen)) changeHappened = true;
                     }
+                    // Move last seen and the piece.
                     lastSeen.B += direction;
                     if (MovePieceLogic(c, lastSeen, cur)) changeHappened = true;
                     otherMatching.B = -1;
                 }
             }
-            if (otherMatching.B != -1) {
+            if (otherMatching.B != -1) {  // After the row is done, if there was a hope of merging at the end, move the final piece.
                 lastSeen.B += direction;
                 if (MovePieceLogic(otherMatching, lastSeen)) changeHappened = true;
             }
@@ -143,25 +152,38 @@ public class GameManager : MonoBehaviour {
     /// <returns>Whether the piece actually moved, i.e. if the start and end are different.</returns>
     private bool MovePieceLogic(HexCoordinates start, HexCoordinates end, Piece piece)
     {
-        if (start == end) return false;
+        if (start.AAxis != end.AAxis || start.BAxis != end.BAxis) Debug.LogError("The axis of the coordinates given to MovePieceLogic should be the same.");  // This is important for the following comparison and the calculation of relativeDist.
+        if (start.Values == end.Values) return false;
         _hexagon[start] = null;
         _hexagon[end] = piece;
-        _pieceInstructor.AddPieceToMove(piece, gridManager.GetTilePosition(end));
+        float relativeDist = Math.Max(Math.Abs(start.A - end.A), Math.Abs(start.B - end.B)) / (float)_hexagon.Diameter;
+        _pieceInstructor.AddPieceToMove(piece, gridManager.GetTilePosition(end), relativeDist);
         return true;
     }
 
+    /// <summary>
+    /// Marks piece to have stage increased.
+    /// </summary>
+    /// <param name="piece"></param>
     private void IncreasePiece(Piece piece) {
         _pieceInstructor.AddPieceToIncrease(piece);
     }
 
+    /// <summary>
+    /// Marks piece to be removed.
+    /// </summary>
+    /// <param name="piece"></param>
     private void RemovePiece(Piece piece) {
         _pieceInstructor.AddPieceToRemove(piece);
         _pieces--;
     }
 
+    /// <summary>
+    /// Creates a new piece at a random point.
+    /// </summary>
+    /// <returns>The time this operation should "pause" the game.</returns>
     private float GeneratePiece() {
         if (_pieces == _hexagon.Size) {
-            Lose();
             return 0f;
         }
         int randomPosition;
@@ -172,6 +194,11 @@ public class GameManager : MonoBehaviour {
         return 0.1f;
     }
     
+    /// <summary>
+    /// Instantiates a new piece and adds it to the hexagon.
+    /// </summary>
+    /// <param name="k">The position of the piece.</param>
+    /// <returns>The new piece.</returns>
     private Piece CreatePiece(int k) {
         Piece piece = Instantiate(piecePrefab, gridManager.GetTilePosition(k), Quaternion.identity).GetComponent<Piece>();
         _hexagon[k] = piece;
@@ -181,9 +208,5 @@ public class GameManager : MonoBehaviour {
             _pieceInstructor.InstantPieceIncrease(piece);            
         }
         return piece;
-    }
-
-    private void Lose() {
-        _lost = true;
     }
 }
