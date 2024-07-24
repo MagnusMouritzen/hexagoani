@@ -1,8 +1,10 @@
 using System;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
+/// <summary>
+/// The visual representation of a piece on the board.
+/// </summary>
 public class Piece : MonoBehaviour {
     [Header("Properties")] 
     [SerializeField] private Vector2 squeeze = Vector2.one;
@@ -20,6 +22,9 @@ public class Piece : MonoBehaviour {
     private float _timer;
     private float _relativeDist;
 
+    /// <summary>
+    /// The "level" of the piece. Cubic root of number displayed.
+    /// </summary>
     public int Stage { get; private set; } = -1;
 
     private void Start() {
@@ -65,6 +70,9 @@ public class Piece : MonoBehaviour {
         squeezer.SetDirection(pos - transform.position);
     }
 
+    /// <summary>
+    /// Increases the stage of the piece.
+    /// </summary>
     public void IncreaseStage()
     {
         Stage++;
@@ -83,6 +91,9 @@ public class Piece : MonoBehaviour {
         return a * Pow(a, b - 1);
     }
 
+    /// <summary>
+    /// Removes the piece from the game.
+    /// </summary>
     public void Remove()
     {
         Destroy(gameObject);

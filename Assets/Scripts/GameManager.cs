@@ -44,8 +44,9 @@ public class GameManager : MonoBehaviour {
     /// <returns></returns>
     private IEnumerator ExecuteTurn(Movement movement) {
         _inputStage = false;
-        if (CalculateMove(movement)) {  // True if the move resulted in a change.
-            yield return new WaitForSeconds(_pieceInstructor.ExecuteMove());
+        (HexAxis row, HexAxis col, int dir) = CalculateMove(movement);
+        if (PerformMoveLogic(row, col, dir)) {  // True if the move resulted in a change.
+            yield return new WaitForSeconds(_pieceInstructor.WaitForMove());
             yield return new WaitForSeconds(_pieceInstructor.ExecuteIncrease());
             yield return new WaitForSeconds(_pieceInstructor.ExecuteRemove());
             yield return new WaitForSeconds(GeneratePiece());
@@ -54,21 +55,22 @@ public class GameManager : MonoBehaviour {
     }
 
     /// <summary>
-    /// Performs the full logical movement.
+    /// Turns a movement command into input for PerformMoveLogic.
     /// </summary>
-    /// <param name="movement">The direction to move all pieces in.</param>
-    /// <returns>If the move did anything.</returns>
-    private bool CalculateMove(Movement movement)
+    /// <param name="movement">Movement command.</param>
+    /// <returns>Input for PerformMoveLogic.</returns>
+    /// <exception cref="ArgumentOutOfRangeException"></exception>
+    private static (HexAxis, HexAxis, int) CalculateMove(Movement movement)
     {
         return movement switch
         {
-            Movement.UpRight => PerformMoveLogic(HexAxis.I, HexAxis.J, -1),
-            Movement.Right => PerformMoveLogic(HexAxis.H, HexAxis.I, -1),
-            Movement.DownRight => PerformMoveLogic(HexAxis.J, HexAxis.I, -1),
-            Movement.DownLeft => PerformMoveLogic(HexAxis.I, HexAxis.J, 1),
-            Movement.Left => PerformMoveLogic(HexAxis.H, HexAxis.I, 1),
-            Movement.UpLeft => PerformMoveLogic(HexAxis.J, HexAxis.I, 1),
-            _ => false
+            Movement.UpRight => (HexAxis.I, HexAxis.J, -1),
+            Movement.Right => (HexAxis.H, HexAxis.I, -1),
+            Movement.DownRight => (HexAxis.J, HexAxis.I, -1),
+            Movement.DownLeft => (HexAxis.I, HexAxis.J, 1),
+            Movement.Left => (HexAxis.H, HexAxis.I, 1),
+            Movement.UpLeft => (HexAxis.J, HexAxis.I, 1),
+            _ => throw new ArgumentOutOfRangeException(nameof(movement), movement, "Must have a value given by the enum.")
         };
     }
 
@@ -157,7 +159,7 @@ public class GameManager : MonoBehaviour {
         _hexagon[start] = null;
         _hexagon[end] = piece;
         float relativeDist = Math.Max(Math.Abs(start.A - end.A), Math.Abs(start.B - end.B)) / (float)_hexagon.Diameter;
-        _pieceInstructor.AddPieceToMove(piece, gridManager.GetTilePosition(end), relativeDist);
+        _pieceInstructor.MovePiece(piece, gridManager.GetTilePosition(end), relativeDist);
         return true;
     }
 

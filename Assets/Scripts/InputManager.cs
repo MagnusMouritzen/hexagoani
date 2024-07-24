@@ -1,8 +1,8 @@
-using System;
 using UnityEngine;
 
 /// <summary>
 /// Reads and broadcasts input.
+/// TODO: Convert to new input system.
 /// </summary>
 public class InputManager : MonoBehaviour {
     [SerializeField] private KeyCode up = KeyCode.UpArrow;
@@ -21,8 +21,6 @@ public class InputManager : MonoBehaviour {
 
     public event MovementRegisteredEvenHandler MovementRegistered;
     
-
-    // TODO: Convert to new input system.
     private void Update() {
         if (Input.GetKey(up)) {
             if (Input.GetKeyDown(right)) {
