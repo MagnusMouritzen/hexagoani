@@ -5,7 +5,6 @@ using UnityEngine.SceneManagement;
 using Random = UnityEngine.Random;
 
 public class GameManager : MonoBehaviour {
-    [SerializeField] private int size = 1;
     [SerializeField] private GridManager gridManager = null;
     [SerializeField] private InputManager inputManager = null;
     [SerializeField] private GameObject piecePrefab = null;
@@ -17,19 +16,22 @@ public class GameManager : MonoBehaviour {
     private int _pieces;
 
     private void Awake() {
-        gridManager.GenerateHexagon(size);
-        _hexagon = new Hexagon<Piece>(size);
-        _pieceInstructor = new PieceInstructor(_hexagon.Size, settings);
         inputManager.MovementRegistered += OnMovementRegistered;
     }
 
-    private void Start() {
-        GeneratePiece();
-        _inputStage = true;
+    public void CleanUpGame() {
+        for (int i = 0; i < _hexagon.Size; i++) {
+            if (_hexagon[i] != null) _pieceInstructor.AddPieceToRemove(_hexagon[i]);
+        }
+        _pieceInstructor.ExecuteRemove();
     }
 
-    public void StartNewGame() {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    public void StartNewGame(int size) {
+        gridManager.GenerateHexagon(size);
+        _hexagon = new Hexagon<Piece>(size);
+        _pieceInstructor = new PieceInstructor(_hexagon.Size, settings);
+        GeneratePiece();
+        _inputStage = true;
     }
 
     private void OnMovementRegistered(Movement movement) {

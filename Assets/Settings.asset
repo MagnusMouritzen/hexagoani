@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 82828baa1f7151444b576a90859f9597, type: 3}
   m_Name: Settings
   m_EditorClassIdentifier: 
-  speed: 10
+  speed: 5
   sprites: []
   colors:
   - {r: 0, g: 0, b: 0, a: 1}

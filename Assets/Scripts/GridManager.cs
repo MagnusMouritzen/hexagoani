@@ -1,5 +1,8 @@
 using UnityEngine;
 
+/// <summary>
+/// Manages the visual board.
+/// </summary>
 public class GridManager : MonoBehaviour
 {
     [SerializeField] private GameObject tilePrefab = null;
@@ -7,6 +10,10 @@ public class GridManager : MonoBehaviour
     
     private Hexagon<Transform> _hexagon;
 
+    /// <summary>
+    /// Generates the board.
+    /// </summary>
+    /// <param name="layers">Hexagon size.</param>
     public void GenerateHexagon(int layers)
     {
         _hexagon = new Hexagon<Transform>(layers);
@@ -27,7 +34,17 @@ public class GridManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Gets world position of a tile.
+    /// </summary>
+    /// <param name="c"></param>
+    /// <returns></returns>
     public Vector3 GetTilePosition(HexCoordinates c) => _hexagon[c].position;
     
+    /// <summary>
+    /// Gets world position of a tile.
+    /// </summary>
+    /// <param name="k">One dimensional coordinate.</param>
+    /// <returns></returns>
     public Vector3 GetTilePosition(int k) => _hexagon[k].position;
 }
