@@ -601,6 +601,8 @@ MonoBehaviour:
   gameManager: {fileID: 58191968}
   sizeText: {fileID: 2010441783}
   sizeSlider: {fileID: 1568604828}
+  volumeSlider: {fileID: 1715464469}
+  audioPlayer: {fileID: 519420034}
 --- !u!1 &375685076
 GameObject:
   m_ObjectHideFlags: 0
@@ -855,41 +857,41 @@ MonoBehaviour:
     - options:
       - option:
           clip: {fileID: 8300000, guid: 830ef70a0e47cdc0484e3c7bd09034c6, type: 3}
-          volume: 0.5
+          volume: 0.8
         relativeChance: 1
       - option:
           clip: {fileID: 8300000, guid: d9a5263356356fcdbbb69b4704f06c00, type: 3}
-          volume: 0.5
+          volume: 0.8
         relativeChance: 1
       - option:
           clip: {fileID: 8300000, guid: 77b01512349125f41a74900ffeae580c, type: 3}
-          volume: 0.5
+          volume: 0.8
         relativeChance: 1
     - options:
       - option:
           clip: {fileID: 8300000, guid: b3b46296d5fd166bfb2bfec0f93f2d3e, type: 3}
-          volume: 0.2
+          volume: 0.3
         relativeChance: 1
       - option:
           clip: {fileID: 8300000, guid: d4306f8b938b5d0069e88d179b5c2e50, type: 3}
-          volume: 0.2
+          volume: 0.3
         relativeChance: 1
       - option:
           clip: {fileID: 8300000, guid: 322460d0ac72fb0a5b5a2a515f56e760, type: 3}
-          volume: 0.2
+          volume: 0.3
         relativeChance: 1
     - options:
       - option:
           clip: {fileID: 8300000, guid: ee8b71a1d8ace25a8b30d68512bdd693, type: 3}
-          volume: 0.6
+          volume: 1
         relativeChance: 1
       - option:
           clip: {fileID: 8300000, guid: a24ca1e96cf03bd4b87b1fd770fd21a2, type: 3}
-          volume: 0.6
+          volume: 1
         relativeChance: 1
       - option:
           clip: {fileID: 8300000, guid: bf571626e4b8977b58932c74d1c349bf, type: 3}
-          volume: 0.6
+          volume: 1
         relativeChance: 1
     - options:
       - option:
@@ -907,28 +909,28 @@ MonoBehaviour:
     - options:
       - option:
           clip: {fileID: 8300000, guid: 93043329aca8b69e3bc873fbcdb3915e, type: 3}
-          volume: 0.3
+          volume: 0.6
         relativeChance: 1
       - option:
           clip: {fileID: 8300000, guid: ecd932dea776ba8588828fb50ff33177, type: 3}
-          volume: 0.3
+          volume: 0.6
         relativeChance: 1
       - option:
           clip: {fileID: 8300000, guid: 1311f2689362cb58ea2ea9f12d2b891f, type: 3}
-          volume: 0.3
+          volume: 0.6
         relativeChance: 1
     - options:
       - option:
           clip: {fileID: 8300000, guid: 94390cf0661f92b6fb7e863a26fd2579, type: 3}
-          volume: 0.5
+          volume: 0.6
         relativeChance: 1
       - option:
           clip: {fileID: 8300000, guid: a1c430c9d3c3588bd83663c56ee0e9d5, type: 3}
-          volume: 0.5
+          volume: 0.6
         relativeChance: 1
       - option:
           clip: {fileID: 8300000, guid: 3dafb7bd5515e8a428b7945a3b8bd080, type: 3}
-          volume: 0.5
+          volume: 0.6
         relativeChance: 1
   lastChosenFactor: 0.5
   audioSource: {fileID: 519420034}
@@ -1922,13 +1924,25 @@ MonoBehaviour:
   m_FillRect: {fileID: 77863046}
   m_HandleRect: {fileID: 597462458}
   m_Direction: 0
-  m_MinValue: 3
-  m_MaxValue: 6
+  m_MinValue: 0
+  m_MaxValue: 1
   m_WholeNumbers: 0
-  m_Value: 3
+  m_Value: 0.5
   m_OnValueChanged:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 241615697}
+        m_TargetAssemblyTypeName: MenuManager, Assembly-CSharp
+        m_MethodName: OnVolumeChange
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &1864046653
 GameObject:
   m_ObjectHideFlags: 0

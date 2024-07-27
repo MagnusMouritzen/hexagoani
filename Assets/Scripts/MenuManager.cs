@@ -8,6 +8,8 @@ public class MenuManager : MonoBehaviour {
     [SerializeField] private GameManager gameManager;
     [SerializeField] private TMP_Text sizeText;
     [SerializeField] private Slider sizeSlider;
+    [SerializeField] private Slider volumeSlider;
+    [SerializeField] private AudioSource audioPlayer;
     
     private bool _isOpen;
 
@@ -44,5 +46,9 @@ public class MenuManager : MonoBehaviour {
 
     private void OnSizeChange() {
         sizeText.text = sizeSlider.value.ToString();
+    }
+
+    private void OnVolumeChange() {
+        audioPlayer.volume = volumeSlider.value;
     }
 }
