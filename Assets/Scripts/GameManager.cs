@@ -40,6 +40,7 @@ public class GameManager : MonoBehaviour {
     }
 
     public void StartNewGame(int size) {
+        Score = 0;
         gridManager.GenerateHexagon(size);
         _hexagon = new Hexagon<Piece>(size);
         _pieceInstructor = new PieceInstructor(_hexagon.Size, settings);
