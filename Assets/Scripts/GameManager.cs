@@ -7,9 +7,10 @@ using Random = UnityEngine.Random;
 public class GameManager : MonoBehaviour {
     [SerializeField] private GridManager gridManager = null;
     [SerializeField] private InputManager inputManager = null;
-    [SerializeField] private GameObject piecePrefab = null;
+    [SerializeField] private Piece piecePrefab = null;
     [SerializeField] private Settings settings = null;
     [SerializeField] private AudioManager audioManager;
+    [SerializeField] private Camera camera;
 
     private Hexagon<Piece> _hexagon;
     private PieceInstructor _pieceInstructor;
@@ -32,6 +33,7 @@ public class GameManager : MonoBehaviour {
         _hexagon = new Hexagon<Piece>(size);
         _pieceInstructor = new PieceInstructor(_hexagon.Size, settings);
         GeneratePiece();
+        camera.orthographicSize = gridManager.BoardHeight;
         _inputStage = true;
     }
 
@@ -206,7 +208,7 @@ public class GameManager : MonoBehaviour {
     /// <param name="k">The position of the piece.</param>
     /// <returns>The new piece.</returns>
     private Piece CreatePiece(int k) {
-        Piece piece = Instantiate(piecePrefab, gridManager.GetTilePosition(k), Quaternion.identity).GetComponent<Piece>();
+        Piece piece = Instantiate(piecePrefab, gridManager.GetTilePosition(k), Quaternion.identity);
         _hexagon[k] = piece;
         _pieces++;
         int rng = Random.Range(1, 6);

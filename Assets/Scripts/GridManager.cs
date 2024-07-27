@@ -9,13 +9,16 @@ public class GridManager : MonoBehaviour
     [SerializeField] private float spacing = 1f;
     
     private Hexagon<Transform> _hexagon;
+    
+    public float BoardHeight { get; private set; }
 
     /// <summary>
     /// Generates the board.
     /// </summary>
     /// <param name="layers">Hexagon size.</param>
-    public void GenerateHexagon(int layers)
-    {
+    public void GenerateHexagon(int layers) {
+        ClearHexagon();
+        
         _hexagon = new Hexagon<Transform>(layers);
         HexCoordinates c = new() { A = layers - 1, B = _hexagon.Diameter - 1, AAxis = HexAxis.H, BAxis = HexAxis.I };
         float xOffset = -_hexagon.ToX(c) / 2;
@@ -31,6 +34,15 @@ public class GridManager : MonoBehaviour
                 tile.GetComponent<SpriteRenderer>().color = new Color((float)c.A / _hexagon.Diameter, (float)c.B / _hexagon.Diameter, (float)_hexagon.GetThirdCoordinate(c) / _hexagon.Diameter);
                 tile.name = $"Tile ({c.A}, {c.B}, {_hexagon.GetThirdCoordinate(c)}) ({_hexagon.ToK(c)})";
             }
+        }
+
+        BoardHeight = _hexagon.ToY(new HexCoordinates(){AAxis = HexAxis.H, BAxis = HexAxis.I, A = -1, B = 0}) + yOffset;
+    }
+
+    private void ClearHexagon() {
+        if (_hexagon == null) return;
+        for (int i = 0; i < _hexagon.Size; i++) {
+            Destroy(_hexagon[i].gameObject);
         }
     }
 
