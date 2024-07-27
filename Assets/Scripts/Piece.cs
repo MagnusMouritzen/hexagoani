@@ -23,12 +23,17 @@ public class Piece : MonoBehaviour {
     private float _relativeDist;
 
     /// <summary>
-    /// The "level" of the piece. Cubic root of number displayed.
+    /// The "level" of the piece. Cubic root of Value.
     /// </summary>
-    public int Stage { get; private set; } = -1;
+    public int Stage { get; private set; } = 0;
+
+    /// <summary>
+    /// The number on the piece. Third power of Stage.
+    /// </summary>
+    public int Value { get; private set; } = 1;
 
     private void Start() {
-        IncreaseStage();
+        UpdateDisplay();
     }
 
     private void Update() {
@@ -76,19 +81,17 @@ public class Piece : MonoBehaviour {
     public void IncreaseStage()
     {
         Stage++;
-        transform.name = (Pow(3, Stage)).ToString();
-        text.text = (Pow(3, Stage)).ToString();
+        Value *= 3;
+        UpdateDisplay();
+    }
+
+    private void UpdateDisplay() {
+        transform.name = Value.ToString();
+        text.text = Value.ToString();
         if (settings.sprites.Length != 0) circle.sprite = settings.sprites[Stage % settings.sprites.Length];
         text.color = settings.colors[Stage % settings.colors.Length];
         outline.color = settings.colors[Stage % settings.colors.Length];
         text.fontSize = settings.fontSizes[Math.Min(Stage, settings.fontSizes.Length - 1)];
-    }
-
-    private static int Pow(int a, int b) {
-        if (b == 0) {
-            return 1;
-        }
-        return a * Pow(a, b - 1);
     }
 
     /// <summary>

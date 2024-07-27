@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Random = UnityEngine.Random;
@@ -11,11 +12,21 @@ public class GameManager : MonoBehaviour {
     [SerializeField] private Settings settings = null;
     [SerializeField] private AudioManager audioManager;
     [SerializeField] private Camera camera;
+    [SerializeField] private TMP_Text scoreText;
 
     private Hexagon<Piece> _hexagon;
     private PieceInstructor _pieceInstructor;
     private bool _inputStage;
     private int _pieces;
+
+    private int _score;
+    private int Score {
+        get => _score;
+        set {
+            _score = value;
+            scoreText.text = _score.ToString();
+        }
+    }
 
     private void Awake() {
         inputManager.MovementRegistered += OnMovementRegistered;
@@ -109,6 +120,7 @@ public class GameManager : MonoBehaviour {
                 else if (cur.Stage == _hexagon[lastSeen].Stage) {  // If a piece has been seen before, and they are the same number.
                     if (otherMatching.B != -1) {  // We now have three identical pieces, so they should merge.
                         changeHappened = true;
+                        Score += cur.Value * 3;
                         Piece temp = _hexagon[otherMatching];
                         RemovePiece(temp);
                         RemovePiece(_hexagon[lastSeen]);
