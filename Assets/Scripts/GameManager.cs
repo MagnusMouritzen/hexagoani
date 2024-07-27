@@ -9,6 +9,7 @@ public class GameManager : MonoBehaviour {
     [SerializeField] private InputManager inputManager = null;
     [SerializeField] private GameObject piecePrefab = null;
     [SerializeField] private Settings settings = null;
+    [SerializeField] private AudioManager audioManager;
 
     private Hexagon<Piece> _hexagon;
     private PieceInstructor _pieceInstructor;
@@ -48,6 +49,7 @@ public class GameManager : MonoBehaviour {
         _inputStage = false;
         (HexAxis row, HexAxis col, int dir) = CalculateMove(movement);
         if (PerformMoveLogic(row, col, dir)) {  // True if the move resulted in a change.
+            PlayMoveSounds(movement);
             yield return new WaitForSeconds(_pieceInstructor.WaitForMove());
             yield return new WaitForSeconds(_pieceInstructor.ExecuteIncrease());
             yield return new WaitForSeconds(_pieceInstructor.ExecuteRemove());
@@ -212,5 +214,9 @@ public class GameManager : MonoBehaviour {
             _pieceInstructor.InstantPieceIncrease(piece);            
         }
         return piece;
+    }
+
+    private void PlayMoveSounds(Movement movement) {
+        audioManager.PlayMovementSound(movement);
     }
 }

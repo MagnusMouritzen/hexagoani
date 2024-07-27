@@ -1,5 +1,12 @@
 {
   "dependencies": {
+    "com.mackysoft.serializereference-extensions": {
+      "version": "https://github.com/mackysoft/Unity-SerializeReferenceExtensions.git?path=Assets/MackySoft/MackySoft.SerializeReferenceExtensions",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "69f6e31cf1482afc03685dd71d63daecbc37a565"
+    },
     "com.unity.2d.animation": {
       "version": "8.0.3",
       "depth": 1,
@@ -243,6 +250,13 @@
         "com.unity.modules.jsonserialize": "1.0.0"
       },
       "url": "https://packages.unity.com"
+    },
+    "net.otterknight.utility": {
+      "version": "https://github.com/MagnusMouritzen/utility-package.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "f706f010d5cedab486ca9eefcb8937b7c91ab607"
     },
     "com.unity.modules.ai": {
       "version": "1.0.0",
