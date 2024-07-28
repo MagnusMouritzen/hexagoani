@@ -5,13 +5,12 @@ using UnityEngine.UI;
 
 public class MenuManager : MonoBehaviour {
     [SerializeField] private GameObject menu;
+    [SerializeField] private GameObject help;
     [SerializeField] private GameManager gameManager;
     [SerializeField] private TMP_Text sizeText;
     [SerializeField] private Slider sizeSlider;
     [SerializeField] private Slider volumeSlider;
     [SerializeField] private AudioSource audioPlayer;
-    
-    private bool _isOpen;
 
     private void Start() {
         OnSizeChange();
@@ -25,13 +24,19 @@ public class MenuManager : MonoBehaviour {
     }
 
     private void CloseMenu() {
-        _isOpen = false;
         menu.SetActive(false);
     }
     
     private void ToggleMenu() {
-        _isOpen = !_isOpen;
-        menu.SetActive(_isOpen);
+        menu.SetActive(!menu.activeSelf);
+    }
+    
+    private void CloseHelp() {
+        help.SetActive(false);
+    }
+    
+    private void ToggleHelp() {
+        help.SetActive(!help.activeSelf);
     }
 
     private void NewGame() {
@@ -41,6 +46,7 @@ public class MenuManager : MonoBehaviour {
 
     private void StartGame() {
         CloseMenu();
+        CloseHelp();
         gameManager.StartNewGame((int)sizeSlider.value);
     }
 
