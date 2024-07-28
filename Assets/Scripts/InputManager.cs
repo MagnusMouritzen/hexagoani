@@ -17,12 +17,12 @@ public class InputManager : MonoBehaviour {
     public event MovementRegisteredEvenHandler MovementRegistered;
     
     private void Update() {
-        CheckMovementInput(Movement.UpLeft);
-        CheckMovementInput(Movement.UpRight);
-        CheckMovementInput(Movement.DownLeft);
-        CheckMovementInput(Movement.DownRight);
-        CheckMovementInput(Movement.Left);
-        CheckMovementInput(Movement.Right);
+        if (CheckMovementInput(Movement.UpLeft)) return;
+        if (CheckMovementInput(Movement.UpRight)) return;
+        if (CheckMovementInput(Movement.DownLeft)) return;
+        if (CheckMovementInput(Movement.DownRight)) return;
+        if (CheckMovementInput(Movement.Left)) return;
+        if (CheckMovementInput(Movement.Right)) return;
     }
 
     private bool CheckMovementInput(Movement movement) {
