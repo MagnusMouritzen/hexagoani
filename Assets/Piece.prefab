@@ -425,6 +425,7 @@ MonoBehaviour:
   circle: {fileID: 3819954978204589708}
   outline: {fileID: 439336301823795864}
   squeezer: {fileID: 7995914041384182025}
+  firstSpawnEffect: {fileID: 8306824379509610695, guid: 1c08c7bd970d87c98b068cbed3990b1c, type: 3}
 --- !u!1 &7454865536042580339
 GameObject:
   m_ObjectHideFlags: 0

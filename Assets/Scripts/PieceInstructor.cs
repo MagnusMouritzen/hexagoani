@@ -1,5 +1,6 @@
-using System.Collections.Generic;
+using System;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 /// <summary>
 /// Handles the visual part of the game by manipulating all the pieces on the board.
@@ -10,13 +11,32 @@ public class PieceInstructor {
     private readonly Piece[] _piecesToRemove;
     private int _removeIndex;
     private readonly Settings _settings;
+    private int highestStage = -1;
+    private readonly int _victoryStage;
+    private readonly Action _victoryCallback;
     
-    public PieceInstructor(int maxAmount, Settings settings) {
+    public PieceInstructor(int maxAmount, Settings settings, int victoryStage, Action victoryCallback) {
         _settings = settings;
         _piecesToIncrease = new Piece[maxAmount];
         _piecesToRemove = new Piece[maxAmount];
         _increaseIndex = 0;
         _removeIndex = 0;
+        _victoryStage = victoryStage;
+        _victoryCallback = victoryCallback;
+    }
+
+    /// <summary>
+    /// Create a new piece at a given position.
+    /// </summary>
+    /// <param name="piecePrefab">Prefab to create piece from.</param>
+    /// <param name="position">Position to place piece.</param>
+    /// <param name="increase">Whether to instantly take it to stage 1.</param>
+    /// <returns>The newly created piece.</returns>
+    public Piece CreatePiece(Piece piecePrefab, Vector3 position, bool increase) {
+        Piece piece = Object.Instantiate(piecePrefab, position, Quaternion.identity);
+        if (increase) piece.IncreaseStage();
+        CheckHighestStage(piece);
+        return piece;
     }
 
     /// <summary>
@@ -34,6 +54,7 @@ public class PieceInstructor {
     public float ExecuteIncrease() {
         for (int i = 0; i < _increaseIndex; i++) {
             _piecesToIncrease[i].IncreaseStage();
+            CheckHighestStage(_piecesToIncrease[i]);
         }
         _increaseIndex = 0;
         return 0f;
@@ -77,11 +98,10 @@ public class PieceInstructor {
         _piecesToRemove[_removeIndex++] = piece;
     }
 
-    /// <summary>
-    /// Increase the stage of a piece immediately.
-    /// </summary>
-    /// <param name="piece">The piece to increase.</param>
-    public void InstantPieceIncrease(Piece piece) {
-        piece.IncreaseStage();
+    private void CheckHighestStage(Piece piece) {
+        if (piece.Stage <= highestStage) return;
+        piece.SpawnEffect();
+        highestStage = piece.Stage;
+        if (highestStage == _victoryStage) _victoryCallback.Invoke();
     }
 }

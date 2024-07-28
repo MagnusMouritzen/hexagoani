@@ -45,8 +45,8 @@ public class GameManager : MonoBehaviour {
         _pieces = 0;
         gridManager.GenerateHexagon(size);
         _hexagon = new Hexagon<Piece>(size);
-        _pieceInstructor = new PieceInstructor(_hexagon.Size, settings);
-        GeneratePiece();
+        _pieceInstructor = new PieceInstructor(_hexagon.Size, settings, 7, Victory);
+        GeneratePiece(true);
         camera.orthographicSize = gridManager.BoardHeight;
         gameOverScreen.SetActive(false);
         _inputStage = true;
@@ -70,7 +70,7 @@ public class GameManager : MonoBehaviour {
             yield return new WaitForSeconds(_pieceInstructor.WaitForMove());
             yield return new WaitForSeconds(_pieceInstructor.ExecuteIncrease());
             yield return new WaitForSeconds(_pieceInstructor.ExecuteRemove());
-            yield return new WaitForSeconds(GeneratePiece());
+            yield return new WaitForSeconds(GeneratePiece(false));
         }
 
         if (IsGameOver()) {
@@ -246,7 +246,7 @@ public class GameManager : MonoBehaviour {
     /// Creates a new piece at a random point.
     /// </summary>
     /// <returns>The time this operation should "pause" the game.</returns>
-    private float GeneratePiece() {
+    private float GeneratePiece(bool first) {
         if (_pieces == _hexagon.Size) {
             return 0f;
         }
@@ -254,24 +254,17 @@ public class GameManager : MonoBehaviour {
         do {
             randomPosition = Random.Range(0, _hexagon.Size);
         } while (_hexagon[randomPosition] != null);
-        CreatePiece(randomPosition);
-        return 0.1f;
-    }
-    
-    /// <summary>
-    /// Instantiates a new piece and adds it to the hexagon.
-    /// </summary>
-    /// <param name="k">The position of the piece.</param>
-    /// <returns>The new piece.</returns>
-    private Piece CreatePiece(int k) {
-        Piece piece = Instantiate(piecePrefab, gridManager.GetTilePosition(k), Quaternion.identity);
-        _hexagon[k] = piece;
-        _pieces++;
-        int rng = Random.Range(1, 6);
-        if (rng == 1) {
-            _pieceInstructor.InstantPieceIncrease(piece);            
+
+        // 1/6 chance to spawn as 3.
+        bool increase = false;
+        if (!first) {
+            int rng = Random.Range(1, 6);
+            if (rng == 1) increase = true;
         }
-        return piece;
+
+        _hexagon[randomPosition] = _pieceInstructor.CreatePiece(piecePrefab, gridManager.GetTilePosition(randomPosition), increase);
+        _pieces++;
+        return 0.1f;
     }
 
     private void PlayMoveSounds(Movement movement) {
@@ -280,5 +273,9 @@ public class GameManager : MonoBehaviour {
 
     private void GameOver() {
         gameOverScreen.SetActive(true);
+    }
+
+    private void Victory() {
+        audioManager.PlayVictorySound();
     }
 }

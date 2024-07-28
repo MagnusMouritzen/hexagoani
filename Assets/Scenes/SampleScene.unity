@@ -938,6 +938,9 @@ MonoBehaviour:
           volume: 0.6
         relativeChance: 1
   lastChosenFactor: 0.5
+  victorySound:
+    clip: {fileID: 8300000, guid: 46a0bc916ac7ae0209cb5efb60034ab0, type: 3}
+    volume: 0.1
   audioSource: {fileID: 519420034}
 --- !u!82 &519420034
 AudioSource:

@@ -15,6 +15,7 @@ public class Piece : MonoBehaviour {
     [SerializeField] private SpriteRenderer circle;
     [SerializeField] private SpriteRenderer outline;
     [SerializeField] private Squeezer squeezer;
+    [SerializeField] private ParticleSystem firstSpawnEffect;
     
     private Vector3 _destination;
     private Vector3 _start;
@@ -93,6 +94,15 @@ public class Piece : MonoBehaviour {
         outline.color = settings.colors[Stage % settings.colors.Length];
         text.fontSize = settings.fontSizes[Math.Min(Stage, settings.fontSizes.Length - 1)];
     }
+    
+    public void SpawnEffect() {
+        ParticleSystem effect = Instantiate(firstSpawnEffect, transform);
+        ParticleSystem.MainModule main = effect.main;
+        main.startColor = new ParticleSystem.MinMaxGradient(settings.colors[Stage % settings.colors.Length]);
+        effect.emission.SetBurst(0, new ParticleSystem.Burst(0f, Math.Min(Value, 2187)));
+        effect.Play();
+    }
+    
 
     /// <summary>
     /// Removes the piece from the game.
