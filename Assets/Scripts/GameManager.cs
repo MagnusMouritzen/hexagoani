@@ -13,6 +13,7 @@ public class GameManager : MonoBehaviour {
     [SerializeField] private AudioManager audioManager;
     [SerializeField] private Camera camera;
     [SerializeField] private TMP_Text scoreText;
+    [SerializeField] private GameObject gameOverScreen;
 
     private Hexagon<Piece> _hexagon;
     private PieceInstructor _pieceInstructor;
@@ -41,11 +42,13 @@ public class GameManager : MonoBehaviour {
 
     public void StartNewGame(int size) {
         Score = 0;
+        _pieces = 0;
         gridManager.GenerateHexagon(size);
         _hexagon = new Hexagon<Piece>(size);
         _pieceInstructor = new PieceInstructor(_hexagon.Size, settings);
         GeneratePiece();
         camera.orthographicSize = gridManager.BoardHeight;
+        gameOverScreen.SetActive(false);
         _inputStage = true;
     }
 
@@ -69,7 +72,13 @@ public class GameManager : MonoBehaviour {
             yield return new WaitForSeconds(_pieceInstructor.ExecuteRemove());
             yield return new WaitForSeconds(GeneratePiece());
         }
-        _inputStage = true;
+
+        if (IsGameOver()) {
+            GameOver();
+        }
+        else {
+            _inputStage = true;
+        }
     }
 
     /// <summary>
@@ -154,6 +163,40 @@ public class GameManager : MonoBehaviour {
     }
 
     /// <summary>
+    /// Checks if any moves are possible.
+    /// </summary>
+    /// <returns>True if no move is possible.</returns>
+    private bool IsGameOver() {
+        if (_pieces != _hexagon.Size) return false;
+        HexCoordinates[] points = {
+            new() { A = 0, AAxis = HexAxis.J, BAxis = HexAxis.H },
+            new() { A = 0, AAxis = HexAxis.H, BAxis = HexAxis.I },
+            new() { A = 0, AAxis = HexAxis.I, BAxis = HexAxis.J },
+        };
+        foreach (HexCoordinates point in points) {  // Each direction
+            for (HexCoordinates c = point; c.A < _hexagon.Diameter; c.A++) {  // Each row
+                int start = _hexagon.RowMin(c);
+                int end = _hexagon.RowMax(c) + 1;
+                int lastStage = -1;
+                int lastAmount = -1;
+                for (c.B = start; c.B != end; c.B++) {  // Each tile in row
+                    Piece cur = _hexagon[c];
+                    if (cur == null) continue;
+                    if (cur.Stage == lastStage) {
+                        if (++lastAmount == 3) return false;
+                    }
+                    else {
+                        lastStage = cur.Stage;
+                        lastAmount = 1;
+                    }
+                }
+            }
+        }
+
+        return true;
+    } 
+
+    /// <summary>
     /// Moves piece in the hexagon structure and informs the piece instructor of the movement.
     /// </summary>
     /// <param name="start">The initial position of the piece.</param>
@@ -233,5 +276,9 @@ public class GameManager : MonoBehaviour {
 
     private void PlayMoveSounds(Movement movement) {
         audioManager.PlayMovementSound(movement);
+    }
+
+    private void GameOver() {
+        gameOverScreen.SetActive(true);
     }
 }
