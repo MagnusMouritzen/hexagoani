@@ -229,16 +229,102 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2e5a556f34a12f893902fd3ba78dc70b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  up: 273
-  down: 274
-  right: 275
-  left: 276
-  upRight: 265
-  altRight: 262
-  downRight: 259
-  upLeft: 263
-  altLeft: 260
-  downLeft: 257
+  movementInputs:
+    content:
+    - options:
+      - key: 265
+        prereqKey:
+          isSome: 0
+          _value: 0
+      - key: 101
+        prereqKey:
+          isSome: 0
+          _value: 0
+      - key: 275
+        prereqKey:
+          isSome: 1
+          _value: 273
+      - key: 100
+        prereqKey:
+          isSome: 1
+          _value: 119
+    - options:
+      - key: 275
+        prereqKey:
+          isSome: 0
+          _value: 0
+      - key: 100
+        prereqKey:
+          isSome: 0
+          _value: 8
+      - key: 262
+        prereqKey:
+          isSome: 0
+          _value: 8
+    - options:
+      - key: 259
+        prereqKey:
+          isSome: 0
+          _value: 0
+      - key: 99
+        prereqKey:
+          isSome: 0
+          _value: 0
+      - key: 275
+        prereqKey:
+          isSome: 1
+          _value: 274
+      - key: 100
+        prereqKey:
+          isSome: 1
+          _value: 115
+    - options:
+      - key: 257
+        prereqKey:
+          isSome: 0
+          _value: 0
+      - key: 122
+        prereqKey:
+          isSome: 0
+          _value: 0
+      - key: 276
+        prereqKey:
+          isSome: 1
+          _value: 274
+      - key: 97
+        prereqKey:
+          isSome: 1
+          _value: 115
+    - options:
+      - key: 97
+        prereqKey:
+          isSome: 0
+          _value: 0
+      - key: 276
+        prereqKey:
+          isSome: 0
+          _value: 0
+      - key: 260
+        prereqKey:
+          isSome: 0
+          _value: 0
+    - options:
+      - key: 263
+        prereqKey:
+          isSome: 0
+          _value: 0
+      - key: 113
+        prereqKey:
+          isSome: 0
+          _value: 0
+      - key: 276
+        prereqKey:
+          isSome: 1
+          _value: 273
+      - key: 97
+        prereqKey:
+          isSome: 1
+          _value: 119
 --- !u!114 &58191968
 MonoBehaviour:
   m_ObjectHideFlags: 0

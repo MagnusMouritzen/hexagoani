@@ -1,3 +1,7 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using OK.Utility;
 using UnityEngine;
 
 /// <summary>
@@ -5,54 +9,26 @@ using UnityEngine;
 /// TODO: Convert to new input system.
 /// </summary>
 public class InputManager : MonoBehaviour {
-    [SerializeField] private KeyCode up = KeyCode.UpArrow;
-    [SerializeField] private KeyCode down = KeyCode.DownArrow;
-    [SerializeField] private KeyCode right = KeyCode.RightArrow;
-    [SerializeField] private KeyCode left = KeyCode.LeftArrow;
-
-    [SerializeField] private KeyCode upRight = KeyCode.Keypad9;
-    [SerializeField] private KeyCode altRight = KeyCode.Keypad6;
-    [SerializeField] private KeyCode downRight = KeyCode.Keypad3;
-    [SerializeField] private KeyCode upLeft = KeyCode.Keypad7;
-    [SerializeField] private KeyCode altLeft = KeyCode.Keypad4;
-    [SerializeField] private KeyCode downLeft = KeyCode.Keypad1;
+    [SerializeField] private EnumDataContainer<MovementInputSelection, Movement> movementInputs;
+    //public EnumDataContainer<int[], Movement> test;
 
     public delegate void MovementRegisteredEvenHandler(Movement movement);
 
     public event MovementRegisteredEvenHandler MovementRegistered;
     
     private void Update() {
-        if (Input.GetKey(up)) {
-            if (Input.GetKeyDown(right)) {
-                SendInput(Movement.UpRight);
-            } else if (Input.GetKeyDown(left)) {
-                SendInput(Movement.UpLeft);
-            }
-        } else if (Input.GetKey(down)) {
-            if (Input.GetKeyDown(right)) {
-                SendInput(Movement.DownRight);
-            } else if (Input.GetKeyDown(left)) {
-                SendInput(Movement.DownLeft);
-            }
-        } else if (Input.GetKeyDown(right)) {
-            SendInput(Movement.Right);
-        } else if (Input.GetKeyDown(left)) {
-            SendInput(Movement.Left);
-        } else {
-            if (Input.GetKeyDown(upRight)) {
-                SendInput(Movement.UpRight);
-            } else if (Input.GetKeyDown(altRight)) {
-                SendInput(Movement.Right);
-            } else if (Input.GetKeyDown(downRight)) {
-                SendInput(Movement.DownRight);
-            } else if (Input.GetKeyDown(upLeft)) {
-                SendInput(Movement.UpLeft);
-            } else if (Input.GetKeyDown(altLeft)) {
-                SendInput(Movement.Left);
-            } else if (Input.GetKeyDown(downLeft)) {
-                SendInput(Movement.DownLeft);
-            }
-        }
+        CheckMovementInput(Movement.UpLeft);
+        CheckMovementInput(Movement.UpRight);
+        CheckMovementInput(Movement.DownLeft);
+        CheckMovementInput(Movement.DownRight);
+        CheckMovementInput(Movement.Left);
+        CheckMovementInput(Movement.Right);
+    }
+
+    private bool CheckMovementInput(Movement movement) {
+        bool hasInput = movementInputs[movement].IsPressed();
+        if (hasInput) SendInput(movement);
+        return hasInput;
     }
 
     private void SendInput(Movement movement) {
@@ -61,5 +37,26 @@ public class InputManager : MonoBehaviour {
 
     protected virtual void OnMovementRegistered(Movement movement) {
         MovementRegistered?.Invoke(movement);
+    }
+
+    [Serializable]
+    private class MovementInputSelection {
+        [SerializeField] private MovementInput[] options;
+
+        public bool IsPressed() {
+            return options.Any(movementInput => movementInput.IsPressed());
+        }
+    }
+
+    [Serializable]
+    private class MovementInput {
+        [SerializeField] private KeyCode key;
+        [SerializeField] private Some<KeyCode> prereqKey;
+
+        public bool IsPressed() {
+            if (!Input.GetKeyDown(key)) return false;
+            if (prereqKey.isSome && !Input.GetKey(prereqKey.Value)) return false;
+            return true;
+        }
     }
 }
