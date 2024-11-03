@@ -11,7 +11,7 @@ public class GameManager : MonoBehaviour {
     [SerializeField] private Piece piecePrefab = null;
     [SerializeField] private Settings settings = null;
     [SerializeField] private AudioManager audioManager;
-    [SerializeField] private Camera camera;
+    [SerializeField] private CameraController cameraController;
     [SerializeField] private TMP_Text scoreText;
     [SerializeField] private GameObject gameOverScreen;
 
@@ -47,7 +47,7 @@ public class GameManager : MonoBehaviour {
         _hexagon = new Hexagon<Piece>(size);
         _pieceInstructor = new PieceInstructor(_hexagon.Size, settings, 7, Victory);
         GeneratePiece(true);
-        camera.orthographicSize = gridManager.BoardHeight;
+        cameraController.SetCameraSize(gridManager.BoardHeight);
         gameOverScreen.SetActive(false);
         _inputStage = true;
     }
